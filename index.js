@@ -16,28 +16,28 @@ function broadcast (socket, channel, msg) {
 }
 
 // A list of all current connections.
-var users = [];
+var connections = [];
 
 // Check to see if the given user is connected.
 function userIsConnected (user) {
-	for(var i=0; i<users.length; i++) {
-		if(users[i].user === user) return true;
+	for(var i=0; i<connections.length; i++) {
+		if(connections[i].user === user) return true;
 	}
 	return false;
 }
 
 // Return a connection by user name.
-function getUserByName (user) {
-	for(var i=0; i<users.length; i++) {
-		if(users[i].user === user) return users[i];
+function getConnectionByUser (user) {
+	for(var i=0; i<connections.length; i++) {
+		if(connections[i].user === user) return connections[i];
 	}
 	return false;
 }
 
 // Return a connection by socket.
-function getUserBySocket (socket) {
-	for(var i=0; i<users.length; i++) {
-		if(users[i].socket === socket) return users[i];
+function getConnectionBySocket (socket) {
+	for(var i=0; i<connections.length; i++) {
+		if(connections[i].socket === socket) return connections[i];
 	}
 	return false;
 }
@@ -45,7 +45,7 @@ function getUserBySocket (socket) {
 // Add a connection to the list of active connections.
 function addUser (user, socket) {
 	if(!userIsConnected(user)) {
-		users.push({user: user, socket: socket });
+		connections.push({user: user, socket: socket });
 		return true;
 	} else {
 		return false;
@@ -54,9 +54,9 @@ function addUser (user, socket) {
 
 // Remove a connection from the list of active connections.
 function removeUser (user) {
-	for(var i=0; i<users.length; i++) {
-		if(users[i].user === user) {
-			users.splice(i, 1);
+	for(var i=0; i<connections.length; i++) {
+		if(connections[i].user === user) {
+			connections.splice(i, 1);
 			return true;
 		}
 	}
@@ -92,9 +92,9 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', function () {
-		var user = getUserBySocket(socket);
-		console.log(user.user + ' has disconnected');
-		removeUser(user.user);
-		broadcast(socket, 'chat meta disconnect', {user: user.user});
+		var connection = getConnectionBySocket(socket);
+		console.log(connection.user + ' has disconnected');
+		removeUser(connection.user);
+		broadcast(socket, 'chat meta disconnect', {user: connection.user});
 	});
 });
