@@ -1,3 +1,4 @@
+// Required modules.
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
@@ -5,58 +6,19 @@ var io = require('socket.io')(http);
 var fs = require('fs');
 var path = require('path');
 
+// The directory that the server is running in.
 var cwd = path.resolve('.');
 
-
-// respond with 'hello world' when a GET request is made to the homepage.
-// app.get('/', function(req, res, next) {
-// 	res.send('GET request to homepage.  Using middleware.');
-// 	next();
-// });
-
-function middle1 (req, res, next) {
-	console.log('middle1');
-	next();
-}
-
-function middle2 (req, res, next) {
-	console.log('middle2');
-	next();
-}
-
-function middle3 (req, res, next) {
-	console.log('middle3');
-	next();
-}
-
-// app.use(middle1);
-// app.use(middle2);
-// app.use(middle3);
-
-// app.post('/', function (req, res) {
-// 	res.send('POST request to the hompage\n');
-// });
-
-// app.get('/request/:id', function (req, res) {
-// 	console.log(req.params);
-// 	res.send(req.toString());
-// });
-
+// Broadcast a message to all connected clients.
 function broadcast (socket, channel, msg) {
 	console.log('broadcasting: ', msg);
-	io.emit(channel, msg);
+	socket.broadcast.emit(channel, msg);
 }
 
-app.get('/', function (req, res) {
-	res.sendFile(cwd + '/index.html');
-});
-
-http.listen(3000, function () {
-	console.log('Example app listening on port 3000');
-});
-
+// A list of all current connections.
 var users = [];
 
+// Check to see if the given user is connected.
 function userIsConnected (user) {
 	for(var i=0; i<users.length; i++) {
 		if(users[i].user === user) return true;
@@ -64,6 +26,7 @@ function userIsConnected (user) {
 	return false;
 }
 
+// Return a connection by user name.
 function getUserByName (user) {
 	for(var i=0; i<users.length; i++) {
 		if(users[i].user === user) return users[i];
@@ -71,6 +34,7 @@ function getUserByName (user) {
 	return false;
 }
 
+// Return a connection by socket.
 function getUserBySocket (socket) {
 	for(var i=0; i<users.length; i++) {
 		if(users[i].socket === socket) return users[i];
@@ -78,6 +42,7 @@ function getUserBySocket (socket) {
 	return false;
 }
 
+// Add a connection to the list of active connections.
 function addUser (user, socket) {
 	if(!userIsConnected(user)) {
 		users.push({user: user, socket: socket });
@@ -87,6 +52,7 @@ function addUser (user, socket) {
 	}
 }
 
+// Remove a connection from the list of active connections.
 function removeUser (user) {
 	for(var i=0; i<users.length; i++) {
 		if(users[i].user === user) {
@@ -97,6 +63,16 @@ function removeUser (user) {
 	return false;
 }
 
+// Webserver for the UI.
+app.get('/', function (req, res) {
+	res.sendFile(cwd + '/index.html');
+});
+
+http.listen(3000, function () {
+	console.log('Example app listening on port 3000');
+});
+
+// Listen for new WebSocket connection requests.
 io.on('connection', function (socket) {
 	console.log('A user connected.');
 
