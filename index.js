@@ -43,7 +43,7 @@ function getConnectionBySocket (socket) {
 }
 
 // Add a connection to the list of active connections.
-function addUser (user, socket) {
+function addConnection (user, socket) {
 	if(!userIsConnected(user)) {
 		connections.push({user: user, socket: socket });
 		return true;
@@ -53,7 +53,7 @@ function addUser (user, socket) {
 }
 
 // Remove a connection from the list of active connections.
-function removeUser (user) {
+function removeConnection (user) {
 	for(var i=0; i<connections.length; i++) {
 		if(connections[i].user === user) {
 			connections.splice(i, 1);
@@ -81,7 +81,7 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('chat meta connect', function (msg) {
-		var connectSuccess = addUser(msg.user, socket);
+		var connectSuccess = addConnection(msg.user, socket);
 
 		if(connectSuccess) {
 			broadcast(socket, 'chat meta connect', msg);
@@ -94,7 +94,7 @@ io.on('connection', function (socket) {
 	socket.on('disconnect', function () {
 		var connection = getConnectionBySocket(socket);
 		console.log(connection.user + ' has disconnected');
-		removeUser(connection.user);
+		removeConnection(connection.user);
 		broadcast(socket, 'chat meta disconnect', {user: connection.user});
 	});
 });
