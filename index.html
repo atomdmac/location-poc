@@ -11,7 +11,8 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
-      li.meta { color: #999; }
+      #messages li.meta { color: #fff; background-color: #000; }
+      #messages li .user { color #ccc; }
     </style>
   </head>
   <body>
@@ -39,7 +40,10 @@
       socket.on('chat message', function (msg) {
         $('#messages').append(
           $('<li>')
-            .text(msg.user + ': ' + msg.message)
+            .text(msg.message)
+            .prepend(
+              $('<span class="user">').text(msg.user + ': ')
+            )
         );
       });
       socket.on('chat meta connect', function (msg) {
